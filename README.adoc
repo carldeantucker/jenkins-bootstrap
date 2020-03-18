@@ -1,0 +1,22 @@
+= jenkins-bootstrap
+
+== Description
+Bootstraps for Jenkins and the Kubernetes plugin into a Kubernetes cluster.  
+
+== Installation Instructions
+If you just want to try this repo out locally, you can follow the ‘Local Cluster’ instructions below. 
+
+Remote Cluster TBA
+
+=== Local cluster
+Make sure you have link:https://kubernetes.io/docs/tasks/tools/install-minikube[Minikube] installed
+1. Checkout the repository
+1. Generate SSH keys in the repository folder `ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -N ""`
+1. Add the generated key to your link:https://github.com/settings/keys[GitHub account] for Jenkins CI to use
+
+
+== Build Status
+
+== Documentation
+TBA
+'''

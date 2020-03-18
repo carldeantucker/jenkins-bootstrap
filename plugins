@@ -1,0 +1,8 @@
+branch-api:2.5.5
+git:latest
+workflow-aggregator:latest
+kubernetes:latest
+credentials:latest
+credentials-binding:latest
+job-dsl:latest
+kubernetes-pipeline-steps:latest
