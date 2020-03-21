@@ -1,0 +1,67 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins
+  namespace: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: master
+  template:
+    metadata:
+      labels:
+        app: master
+    spec:
+      containers:
+      - name: master
+        image: jenkins/jenkins:lts
+        ports:
+        - containerPort: 8080
+        - containerPort: 50000
+        readinessProbe:
+          httpGet:
+            path: /login
+            port: 8080
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 2
+          failureThreshold: 5
+        env:
+        - name: JAVA_OPTS
+          value: "-Djenkins.install.runSetupWizard=false"
+      initContainers:
+      - name: repo-clone
+        image: jenkins/jenkins:lts
+        command:
+          - /bin/sh
+          - -c
+          - cp /etc/secret-volume/ssh-privatekey ~/.ssh/id_rsa;cp /etc/secret-volume/ssh-publickey ~/.ssh/id_rsa.pub;chmod 400 ~/.ssh/*;printf "host github.com\n HostName github.com\n IdentityFile ~/.ssh/id_rsa\n User jenkins" > ~/.ssh/config;ssh-keyscan github.com >> ~/.ssh/known_hosts;cd /usr/share/jenkins/ref && git clone git@github.com:carldeantucker/jenkins-bootstrap.git; echo clone completed; ls /usr/share/jenkins/ref/
+        volumeMounts:
+        - mountPath: /usr/share/jenkins/ref
+          name: ref-volume
+        - mountPath: /etc/secret-volume
+          name: secret-volume
+          readOnly: true
+        - mountPath: /var/jenkins_home/.ssh
+          name: ssh-volume
+      - name: install-plugins
+        image: jenkins/jenkins:lts
+        command: ['bash', '-c', 'install-plugins.sh git:latest branch-api:latest kubernetes:latest']
+        volumeMounts:
+        - mountPath: /usr/share/jenkins/ref
+          name: ref-volume
+        - mountPath: /etc/secret-volume
+          name: secret-volume
+          readOnly: true
+        - mountPath: /var/jenkins_home/.ssh
+          name: ssh-volume
+      volumes:
+      - name: ref-volume
+        emptyDir: {}
+      - name: ssh-volume
+        emptyDir: {}
+      - name: secret-volume
+        secret:
+          secretName: ssh-key-secret
