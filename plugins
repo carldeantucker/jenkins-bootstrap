@@ -1,4 +1,3 @@
-git:latest
 workflow-aggregator:latest
 kubernetes:latest
 credentials:latest
